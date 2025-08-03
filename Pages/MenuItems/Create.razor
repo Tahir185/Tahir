@@ -1,0 +1,281 @@
+@page "/menuitems/create"
+@using HotelPortal.Data
+@using HotelPortal.Models
+@using Microsoft.EntityFrameworkCore
+@using Blazored.Toast.Services
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+@attribute [Authorize]
+
+<PageTitle>Add Menu Item - Hotel Portal</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h2 class="h4 mb-0">
+                    <i class="fas fa-plus me-2"></i>Add New Menu Item
+                </h2>
+            </div>
+            <div class="card-body">
+                <EditForm Model="@menuItem" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Item Name *</label>
+                            <InputText id="name" class="form-control" @bind-Value="menuItem.Name" placeholder="Enter item name" />
+                            <ValidationMessage For="@(() => menuItem.Name)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="hotelId" class="form-label">Hotel *</label>
+                            <InputSelect id="hotelId" class="form-select" @bind-Value="menuItem.HotelId">
+                                <option value="0">Select a hotel</option>
+                                @foreach (var hotel in hotels)
+                                {
+                                    <option value="@hotel.Id">@hotel.Name</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => menuItem.HotelId)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="description" class="form-label">Description</label>
+                            <InputTextArea id="description" class="form-control" rows="3" @bind-Value="menuItem.Description" placeholder="Describe the dish..." />
+                            <ValidationMessage For="@(() => menuItem.Description)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category *</label>
+                            <InputSelect id="category" class="form-select" @bind-Value="menuItem.Category">
+                                <option value="">Select category</option>
+                                <option value="Appetizer">Appetizer</option>
+                                <option value="Main Course">Main Course</option>
+                                <option value="Dessert">Dessert</option>
+                                <option value="Beverage">Beverage</option>
+                                <option value="Soup">Soup</option>
+                                <option value="Salad">Salad</option>
+                                <option value="Side Dish">Side Dish</option>
+                                <option value="Breakfast">Breakfast</option>
+                                <option value="Lunch">Lunch</option>
+                                <option value="Dinner">Dinner</option>
+                            </InputSelect>
+                            <ValidationMessage For="@(() => menuItem.Category)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="price" class="form-label">Price ($) *</label>
+                            <InputNumber id="price" class="form-control" @bind-Value="menuItem.Price" step="0.01" placeholder="0.00" />
+                            <ValidationMessage For="@(() => menuItem.Price)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="calories" class="form-label">Calories</label>
+                            <InputNumber id="calories" class="form-control" @bind-Value="menuItem.Calories" placeholder="Optional" />
+                            <ValidationMessage For="@(() => menuItem.Calories)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="preparationTime" class="form-label">Preparation Time (minutes)</label>
+                            <InputNumber id="preparationTime" class="form-control" @bind-Value="menuItem.PreparationTimeMinutes" placeholder="Optional" />
+                            <ValidationMessage For="@(() => menuItem.PreparationTimeMinutes)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="imageUrl" class="form-label">Image URL</label>
+                            <InputText id="imageUrl" type="url" class="form-control" @bind-Value="menuItem.ImageUrl" placeholder="https://example.com/image.jpg" />
+                            <ValidationMessage For="@(() => menuItem.ImageUrl)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="allergenInfo" class="form-label">Allergen Information</label>
+                            <InputText id="allergenInfo" class="form-control" @bind-Value="menuItem.AllergenInfo" placeholder="e.g., Contains nuts, dairy, gluten" />
+                            <ValidationMessage For="@(() => menuItem.AllergenInfo)" class="text-danger" />
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label">Dietary Options</label>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <InputCheckbox id="isVegetarian" class="form-check-input" @bind-Value="menuItem.IsVegetarian" />
+                                        <label class="form-check-label" for="isVegetarian">
+                                            <i class="fas fa-leaf text-success me-1"></i>Vegetarian
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <InputCheckbox id="isVegan" class="form-check-input" @bind-Value="menuItem.IsVegan" />
+                                        <label class="form-check-label" for="isVegan">
+                                            <i class="fas fa-seedling text-success me-1"></i>Vegan
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <InputCheckbox id="isGlutenFree" class="form-check-input" @bind-Value="menuItem.IsGlutenFree" />
+                                        <label class="form-check-label" for="isGlutenFree">
+                                            <i class="fas fa-wheat text-info me-1"></i>Gluten-Free
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <InputCheckbox id="isAvailable" class="form-check-input" @bind-Value="menuItem.IsAvailable" />
+                                        <label class="form-check-label" for="isAvailable">
+                                            <i class="fas fa-check-circle text-success me-1"></i>Available
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="/menuitems" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Menu Items
+                        </a>
+                        <div>
+                            <button type="button" class="btn btn-outline-success me-2" @onclick="PreviewMenuItem">
+                                <i class="fas fa-eye me-2"></i>Preview
+                            </button>
+                            <button type="submit" class="btn btn-success" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-save me-2"></i>
+                                }
+                                Add Menu Item
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+    
+    @if (showPreview)
+    {
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-eye me-2"></i>Preview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(menuItem.ImageUrl))
+                    {
+                        <img src="@menuItem.ImageUrl" class="card-img-top mb-3" alt="@menuItem.Name" style="height: 150px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center mb-3" style="height: 150px;">
+                            <i class="fas fa-utensils fa-2x text-muted"></i>
+                        </div>
+                    }
+                    
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title">@(string.IsNullOrEmpty(menuItem.Name) ? "Menu Item Name" : menuItem.Name)</h6>
+                        <span class="badge bg-primary">@(string.IsNullOrEmpty(menuItem.Category) ? "Category" : menuItem.Category)</span>
+                    </div>
+                    
+                    <p class="card-text">
+                        @(string.IsNullOrEmpty(menuItem.Description) ? "Menu item description will appear here..." : menuItem.Description)
+                    </p>
+                    
+                    <div class="row g-2 mb-3 small">
+                        <div class="col-6">
+                            <strong class="text-success">$@menuItem.Price.ToString("F2")</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            @if (menuItem.Calories.HasValue)
+                            {
+                                <span class="text-muted">@menuItem.Calories cal</span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                        @if (menuItem.IsVegetarian)
+                        {
+                            <span class="badge bg-success">Vegetarian</span>
+                        }
+                        @if (menuItem.IsVegan)
+                        {
+                            <span class="badge bg-success">Vegan</span>
+                        }
+                        @if (menuItem.IsGlutenFree)
+                        {
+                            <span class="badge bg-info">Gluten-Free</span>
+                        }
+                        @if (menuItem.PreparationTimeMinutes.HasValue)
+                        {
+                            <span class="badge bg-secondary">@menuItem.PreparationTimeMinutes min</span>
+                        }
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(menuItem.AllergenInfo))
+                    {
+                        <div class="small text-muted">
+                            <i class="fas fa-exclamation-triangle me-1"></i>@menuItem.AllergenInfo
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private MenuItem menuItem = new() { IsAvailable = true };
+    private List<Hotel> hotels = new();
+    private bool isSubmitting = false;
+    private bool showPreview = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHotels();
+    }
+
+    private async Task LoadHotels()
+    {
+        hotels = await DbContext.Hotels.Where(h => h.IsActive).OrderBy(h => h.Name).ToListAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitting = true;
+        
+        try
+        {
+            menuItem.CreatedDate = DateTime.Now;
+            DbContext.MenuItems.Add(menuItem);
+            await DbContext.SaveChangesAsync();
+            
+            ToastService.ShowSuccess($"Menu item '{menuItem.Name}' has been added successfully!");
+            Navigation.NavigateTo("/menuitems");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Error adding menu item: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void PreviewMenuItem()
+    {
+        showPreview = !showPreview;
+    }
+}
