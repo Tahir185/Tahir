@@ -1,0 +1,132 @@
+@page "/"
+
+<PageTitle>Home - Hotel Portal</PageTitle>
+
+<div class="hero-section bg-primary text-white py-5 mb-4 rounded">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">
+                    <i class="fas fa-hotel me-3"></i>Hotel Portal
+                </h1>
+                <p class="lead mb-4">
+                    Manage your hotels and menus with ease. Register your properties, 
+                    showcase your culinary offerings, and grow your hospitality business.
+                </p>
+                <AuthorizeView>
+                    <Authorized>
+                        <a href="/hotels" class="btn btn-light btn-lg me-3">
+                            <i class="fas fa-building me-2"></i>View Hotels
+                        </a>
+                        <a href="/hotels/create" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-plus me-2"></i>Register New Hotel
+                        </a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a href="/Identity/Account/Register" class="btn btn-light btn-lg me-3">
+                            <i class="fas fa-user-plus me-2"></i>Get Started
+                        </a>
+                        <a href="/Identity/Account/Login" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-concierge-bell display-1 opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-building fa-2x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Hotel Management</h5>
+                        <p class="card-text text-muted">
+                            Register and manage your hotel properties with detailed information and settings.
+                        </p>
+                        <a href="/hotels" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Manage Hotels
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-utensils fa-2x text-success"></i>
+                        </div>
+                        <h5 class="card-title">Menu Management</h5>
+                        <p class="card-text text-muted">
+                            Create and maintain comprehensive menus for your restaurants and room service.
+                        </p>
+                        <a href="/menuitems" class="btn btn-success">
+                            <i class="fas fa-arrow-right me-2"></i>Manage Menus
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-chart-line fa-2x text-info"></i>
+                        </div>
+                        <h5 class="card-title">Analytics & Reports</h5>
+                        <p class="card-text text-muted">
+                            Track performance and get insights about your hotels and menu popularity.
+                        </p>
+                        <a href="#" class="btn btn-info">
+                            <i class="fas fa-arrow-right me-2"></i>View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-star text-warning me-2"></i>Premium Hotel Management
+                        </h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Unlimited hotel registrations</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Comprehensive menu management</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Real-time analytics</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>24/7 customer support</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-users text-primary me-2"></i>Join Our Community
+                        </h5>
+                        <p class="card-text">
+                            Connect with thousands of hotel owners and restaurant managers who trust our platform 
+                            to manage their hospitality business efficiently.
+                        </p>
+                        <a href="/Identity/Account/Register" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up Today
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>

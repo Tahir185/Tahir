@@ -1,0 +1,224 @@
+@page "/hotels"
+@using HotelPortal.Data
+@using HotelPortal.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+
+<PageTitle>Hotels - Hotel Portal</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 mb-0">
+            <i class="fas fa-building me-2 text-primary"></i>Hotels
+        </h1>
+        <p class="text-muted mb-0">Manage your hotel properties</p>
+    </div>
+    <a href="/hotels/create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Register New Hotel
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-text">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Search hotels..." @bind="searchTerm" @bind:after="OnSearchChanged" />
+        </div>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" @bind="selectedCity" @bind:after="OnFilterChanged">
+            <option value="">All Cities</option>
+            @foreach (var city in cities)
+            {
+                <option value="@city">@city</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" @bind="selectedRating" @bind:after="OnFilterChanged">
+            <option value="0">All Ratings</option>
+            <option value="5">5 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="2">2 Stars</option>
+            <option value="1">1 Star</option>
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">Loading hotels...</p>
+    </div>
+}
+else if (!hotels.Any())
+{
+    <div class="text-center py-5">
+        <i class="fas fa-building fa-3x text-muted mb-3"></i>
+        <h3 class="text-muted">No Hotels Found</h3>
+        <p class="text-muted">Start by registering your first hotel property.</p>
+        <a href="/hotels/create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Register Hotel
+        </a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var hotel in hotels)
+        {
+            <div class="col-lg-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm hotel-card">
+                    @if (!string.IsNullOrEmpty(hotel.ImageUrl))
+                    {
+                        <img src="@hotel.ImageUrl" class="card-img-top" alt="@hotel.Name" style="height: 200px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-building fa-3x text-muted"></i>
+                        </div>
+                    }
+                    
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@hotel.Name</h5>
+                            <div class="text-warning">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="fas fa-star @(i <= hotel.StarRating ? "text-warning" : "text-muted")"></i>
+                                }
+                            </div>
+                        </div>
+                        
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-map-marker-alt me-1"></i>@hotel.City, @hotel.Country
+                        </p>
+                        
+                        <p class="card-text flex-grow-1">@hotel.Description</p>
+                        
+                        <div class="row g-2 mb-3 small text-muted">
+                            <div class="col-6">
+                                <i class="fas fa-phone me-1"></i>@hotel.PhoneNumber
+                            </div>
+                            <div class="col-6">
+                                <i class="fas fa-envelope me-1"></i>@hotel.Email
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group" role="group">
+                                <a href="/hotels/details/@hotel.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/hotels/edit/@hotel.Id" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm" @onclick="() => DeleteHotel(hotel)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <span class="badge @(hotel.IsActive ? "bg-success" : "bg-secondary")">
+                                @(hotel.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Hotel> hotels = new();
+    private List<string> cities = new();
+    private bool isLoading = true;
+    private string searchTerm = string.Empty;
+    private string selectedCity = string.Empty;
+    private int selectedRating = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHotels();
+        await LoadCities();
+    }
+
+    private async Task LoadHotels()
+    {
+        isLoading = true;
+        
+        var query = DbContext.Hotels.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(h => h.Name.Contains(searchTerm) || 
+                                   h.Description.Contains(searchTerm) ||
+                                   h.City.Contains(searchTerm) ||
+                                   h.Country.Contains(searchTerm));
+        }
+
+        if (!string.IsNullOrWhiteSpace(selectedCity))
+        {
+            query = query.Where(h => h.City == selectedCity);
+        }
+
+        if (selectedRating > 0)
+        {
+            query = query.Where(h => h.StarRating == selectedRating);
+        }
+
+        hotels = await query.OrderByDescending(h => h.CreatedDate).ToListAsync();
+        isLoading = false;
+    }
+
+    private async Task LoadCities()
+    {
+        cities = await DbContext.Hotels
+            .Select(h => h.City)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
+    }
+
+    private async Task OnSearchChanged()
+    {
+        await LoadHotels();
+    }
+
+    private async Task OnFilterChanged()
+    {
+        await LoadHotels();
+    }
+
+    private async Task DeleteHotel(Hotel hotel)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", 
+            $"Are you sure you want to delete '{hotel.Name}'? This action cannot be undone.");
+        
+        if (confirmed)
+        {
+            DbContext.Hotels.Remove(hotel);
+            await DbContext.SaveChangesAsync();
+            await LoadHotels();
+        }
+    }
+}
+
+<style>
+    .hotel-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .hotel-card:hover {
+        transform: translateY(-5px);
+    }
+</style>

@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "/workspace/wwwroot/css/site.css",
+      "PackagePath": "staticwebassets/css/site.css"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.HotelPortal.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.HotelPortal.props",
+      "PackagePath": "build\\HotelPortal.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.HotelPortal.props",
+      "PackagePath": "buildMultiTargeting\\HotelPortal.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.HotelPortal.props",
+      "PackagePath": "buildTransitive\\HotelPortal.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
